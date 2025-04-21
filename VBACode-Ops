@@ -1,0 +1,158 @@
+Option Compare Text
+
+Sub NARF()
+
+Set K = ThisWorkbook.Sheets("Sheet1")
+
+
+Columns("H:H").Select
+    Application.CutCopyMode = False
+    Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+
+
+    Range("H1").Select
+    ActiveCell.FormulaR1C1 = "Change"
+    ActiveCell.Font.Bold = True
+    Range("I1").Select
+    ActiveCell.FormulaR1C1 = "Restr. Code"
+    ActiveCell.Font.Bold = True
+
+    Range("A2:A5000").Select
+    Selection.TextToColumns Destination:=Range("A2"), DataType:=xlDelimited, _
+        TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=True, _
+        Semicolon:=False, Comma:=False, Space:=False, Other:=False, FieldInfo _
+        :=Array(1, 1), TrailingMinusNumbers:=True
+
+y = 2
+x = 8
+
+LastRow = K.Cells(Rows.Count, 1).End(xlUp).Row
+BeforeLastRow = LastRow - 1
+yy = LastRow + 5
+LastRow1 = K.Cells(Rows.Count, 2).End(xlUp).Row
+
+For B = 3 To LastRow
+
+K.Cells(y, x) = "=F" & y & "-E" & y
+K.Cells(y, x).Interior.ColorIndex = 45
+K.Cells(y, x).Font.Bold = True
+x = x + 1
+
+K.Cells(y, x) = "=RIGHT(B" & y & ",5)"
+
+y = y + 1
+x = x - 1
+
+Next
+
+
+y = 2
+x = 1
+
+For B = 3 To LastRow
+
+If K.Cells(y, x) > 4000 And K.Cells(y, x) < 7000 Then
+K.Cells(Y, X).Interior.ColorIndex = 28
+re = y
+y = y + 1
+re1 = y
+
+ElseIf K.Cells(y, x) > 7000 And K.Cells(y, x) < 9117 Then
+K.Cells(Y, X).Interior.ColorIndex = 38
+ex = y
+y = y + 1
+ex1 = y
+
+ElseIf K.Cells(y, x) > 9117 Then
+K.Cells(Y, X).Interior.ColorIndex = 45
+y = y + 1
+
+Else
+y = y + 1
+
+End If
+
+Next
+
+
+Rows("2:2").Select
+ActiveWindow.FreezePanes = True
+Columns("A:J").EntireColumn.AutoFit
+
+Rows("2:" & BeforeLastRow).Select
+Selection.Rows.Group
+
+
+    Range("I2").Select
+    Range(Selection, Selection.End(xlDown)).Select
+    Selection.Copy
+    Sheets.Add After:=ActiveSheet
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+    Application.CutCopyMode = False
+    Application.CutCopyMode = False
+    Application.CutCopyMode = False
+    Range("A1:A2386").AdvancedFilter Action:=xlFilterCopy, CopyToRange:=Range( _
+        "C2"), Unique:=True
+    Range("C2").Select
+    Range(Selection, Selection.End(xlDown)).Select
+    ActiveWorkbook.Worksheets("Sheet2").Sort.SortFields.Clear
+    ActiveWorkbook.Worksheets("Sheet2").Sort.SortFields.Add Key:=Range("C2"), _
+        SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:= _
+        xlSortTextAsNumbers
+    With ActiveWorkbook.Worksheets("Sheet2").Sort
+        .SetRange Range("C2:C53")
+        .Header = xlNo
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+    Selection.Copy
+    Sheets("Sheet1").Select
+    ActiveWindow.SmallScroll Down:=30
+
+    Range("C" & yy).Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+
+yy = yy - 1
+Range("D" & yy).Select
+    ActiveCell.FormulaR1C1 = "Revenue"
+    Selection.Font.Bold = True
+Range("E" & yy).Select
+    ActiveCell.FormulaR1C1 = "Expense"
+    Selection.Font.Bold = True
+Range("F" & yy).Select
+    ActiveCell.FormulaR1C1 = "Depart Xfers"
+    Selection.Font.Bold = True
+yy = yy + 1
+
+K.Cells(yy, 4) = "=SUMIF($I$2:$I$" & re & ",C" & yy & ",$H$2:$H$" & re & ")"
+K.Cells(yy, 5) = "=SUMIF($I$" & re1 & ":$I$" & ex & ",C" & yy & ",$H$" & re1 & ":$H$" & ex & ")"
+K.Cells(yy, 6) = "=SUMIF($I$" & ex1 & ":$I$" & lastrow & ",C" & yy & ",$H$" & ex1 & ":$H$" & lastrow & ")"
+
+yy = lastrow + 5
+
+For b = 2000 To LastRow1
+
+If K.Cells(yy, 3) > 19999 And K.Cells(yy, 3) < 30000 Then
+K.Cells(yy,3).Interior.ColorIndex = 28
+yy = yy + 1
+
+
+Else
+yy = yy + 1
+
+End If
+
+Next
+
+
+    Columns("D:H").Select
+    Selection.Style = "Comma"
+
+    ActiveSheet.Range("$A$1:$I$" & BeforeLastRow ).AutoFilter Field:=7
+
+
+End Sub
